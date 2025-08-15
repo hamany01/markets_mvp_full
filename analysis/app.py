@@ -1,4 +1,9 @@
 ﻿# تحليل: يقرأ الووتش ليست من DB، يجلب أسعار (Tiingo/ccxt إن وُجدت مفاتيح)، يحسب مؤشرات وإشارات دورياً.
+import redis.asyncio as aioredis  # جديد
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+REDIS_URL          = os.getenv("REDIS_URL", "redis://redis:6379/0")
+
 import os, json, asyncio, time, math
 from datetime import datetime, timedelta, timezone
 import asyncpg
