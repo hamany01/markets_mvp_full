@@ -87,7 +87,7 @@ async def seed_for_symbol(conn, sym: str, days=320):
     await conn.executemany(
         """INSERT INTO prices(symbol,venue,tf,ts,open,high,low,close,volume)
            VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)
-           ON CONFLICT (symbol,tf,ts) DO NOTHING""",
+           ON CONFLICT (symbol,tf,ts) DO NOTHING"""",
         batch
     )
 
@@ -104,7 +104,7 @@ async def fetch_df(conn, sym, tf="1d", lookback=500):
     rows = await conn.fetch(
       """SELECT ts, open, high, low, close, volume
          FROM prices WHERE symbol=$1 AND tf=$2
-         ORDER BY ts DESC LIMIT $3""",
+         ORDER BY ts DESC LIMIT $3"""",
       sym, tf, lookback
     )
     if not rows: return None
@@ -155,7 +155,7 @@ async def compute_for_symbol(conn, sym, tf="1d"):
     await conn.execute(
       """INSERT INTO indicators(symbol, tf, ts, data)
          VALUES ($1,$2,$3,$4)
-         ON CONFLICT (symbol,tf,ts) DO UPDATE SET data=EXCLUDED.data""",
+         ON CONFLICT (symbol,tf,ts) DO UPDATE SET data=EXCLUDED.data"""",
       sym, tf, ts, json.dumps(ind)
     )
     dir_, score = direction_and_score(ind, df)
@@ -163,9 +163,10 @@ async def compute_for_symbol(conn, sym, tf="1d"):
     await conn.execute(
       """INSERT INTO signals(symbol, tf, ts, rule_id, fired, score, detail)
          VALUES ($1,$2,$3,'00000000-0000-0000-0000-000000000001',$4,$5,$6)
-         ON CONFLICT DO NOTHING""",
+         ON CONFLICT DO NOTHING"""",
       sym, tf, ts, score>=0.6, score, json.dumps(detail)
     )
+    # تنبيه بسيط عند إشارة دخول
     if score >= 0.6:
         send_telegram(f"📈 إشارة دخول: {sym} [{tf}] — score={score:.2f} (MA/RSI)")
 

@@ -4,3 +4,4 @@ asyncpg==0.29.0
 redis==5.0.7
 pydantic==2.8.2
 python-dotenv==1.0.1
+requests==2.31.0

@@ -52,7 +52,7 @@ async def startup():
     await app.state.db.execute(
         """INSERT INTO watchlists (user_id,name,symbols)
            SELECT $1,'Default','{}'::text[]
-           WHERE NOT EXISTS (SELECT 1 FROM watchlists WHERE user_id=$1)""",
+           WHERE NOT EXISTS (SELECT 1 FROM watchlists WHERE user_id=$1)"""",
         DEFAULT_USER_ID
     )
 
@@ -92,7 +92,7 @@ async def get_prices(symbol: str, tf: str = "1d", limit: int = 200):
     rows = await app.state.db.fetch(
         """SELECT ts, open, high, low, close, volume
            FROM prices WHERE symbol=$1 AND tf=$2
-           ORDER BY ts DESC LIMIT $3""",
+           ORDER BY ts DESC LIMIT $3"""",
         symbol.upper(), tf, limit
     )
     rows = list(reversed(rows))
@@ -118,7 +118,7 @@ async def add_symbol(req: AddReq):
     await app.state.db.execute(
         """UPDATE watchlists
            SET symbols = (SELECT ARRAY(SELECT DISTINCT s FROM unnest(symbols || $2::text[]) as s))
-           WHERE user_id=$1 AND name='Default'""",
+           WHERE user_id=$1 AND name='Default'"""",
         DEFAULT_USER_ID, [sym]
     )
     return await get_watchlist()
