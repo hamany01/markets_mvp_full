@@ -174,3 +174,34 @@ async def ws_prices(ws: WebSocket, symbols: str = Query(...), tf: str = "1m"):
 async def root():
     return {'ok': True, 'message': 'Markets Gateway running. See /health and /docs.'}
 
+# --- Jobs: تشغيل التحليل فورًا ---
+from fastapi import Body
+import requests as _req
+
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+
+def _tg_send(text: str) -> bool:
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID: 
+        return False
+    try:
+        _req.get(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+                 params={"chat_id": TELEGRAM_CHAT_ID, "text": text}, timeout=10)
+        return True
+    except Exception:
+        return False
+
+@app.post("/jobs/run-analysis")
+async def run_analysis_now():
+    # ننشر أمر على قناة Redis "jobs" ليستقبله analysis
+    await app.state.redis.publish("jobs", "run_analysis")
+    return {"ok": True, "queued": True}
+
+@app.get("/telegram/test")
+async def telegram_test():
+    ok = _tg_send("✅ اختبار: تنبيهات أسهم/كريبتو تعمل.")
+    return {"ok": ok, "note": "ضع TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID في .env إن كان ok=false"}
+
+# (اختياري لاحقًا) CRUD للتنبيهات المخصّصة…
+
+
