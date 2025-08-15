@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  db:
+    image: timescale/timescaledb:latest-pg15
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: markets
+    ports: ["5432:5432"]
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  gateway:
+    build: ./gateway
+    env_file: .env
+    depends_on: [db, redis]
+    ports: ["8000:8000"]
+
+  analysis:
+    build: ./analysis
+    env_file: .env
+    depends_on: [db, redis]
+
+  frontend:
+    build: ./frontend
+    depends_on: [gateway]
+    ports: ["5173:80"]
