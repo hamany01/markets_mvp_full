@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/main.tsx --bundle --outfile=dist/assets/app.js --loader:.tsx=tsx --loader:.ts=ts && cp index.html dist/index.html"
+    "build": "esbuild src/main.tsx --bundle --outfile=dist/assets/app.js --loader:.tsx=tsx --loader:.ts=ts && cp index.html dist/index.html",
+    "test": "node --test"
   },
   "dependencies": {
     "react": "^18.3.1",
